@@ -3,8 +3,6 @@
 A looping GIF background with pink scrolling text over the top, for the
 Pimoroni Interstate 75 W (RP2350) and a HUB75 LED matrix panel.
 
-Every line has a comment (starting with #) explaining what it does.
-Comments are ignored by the microcontroller - they are notes for humans.
 """
 
 # ---------------------------------------------------------------------------
