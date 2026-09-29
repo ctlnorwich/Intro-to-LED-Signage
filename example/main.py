@@ -42,7 +42,7 @@ FRAME_DELAY = 0.05
 BACKGROUND_BRIGHTNESS = 0.5
 
 # The Alright Font (.af) file on the board used to draw the text.
-FONT_FILE = "fonts/sign.af"
+FONT_FILE = "fonts/cherry-hq.af"
 
 # The words that scroll across the sign. Keep them inside the quote marks!
 MESSAGE = "I must not fear. Fear is the mind-killer. Fear is the little-death that brings total obliteration."
