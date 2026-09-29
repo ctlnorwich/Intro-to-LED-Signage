@@ -3,10 +3,10 @@
 # so both can be run from any folder, by any user, in the Terminal.
 #
 # Run once per computer from an admin account:
-#   bash setup/install-tools.sh
+#   bash workshop_setup/install-tools.sh
 #
 # Override install locations if needed:
-#   PREFIX=/usr/local AF_DIR=/usr/local/share/alright-fonts bash setup/install-tools.sh
+#   PREFIX=/usr/local AF_DIR=/usr/local/share/alright-fonts bash workshop_setup/install-tools.sh
 
 set -euo pipefail
 
