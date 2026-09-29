@@ -156,6 +156,8 @@ Our code runs on the board, so everything it needs (the font and the animation f
 
 Pressing **Run** sends the code from your computer to the board and runs it there, but only until the board is unplugged.
 
+While it runs, look at the **Shell** at the bottom of Thonny. Once a second the sign prints a line like `FPS: 14.3`. That's its **frame rate**: how many frames it managed to draw in the last second ([line 281](example/main.py#L281)). Films run at 24 FPS, and games aim for 60. Keep an eye on this number as you change things; it's the quickest way to *see* the limits of the hardware.
+
 #### Step 6: Make it stick
 
 To make the sign run on its own (plugged into a USB power supply, with no computer), the code needs to live *on the board* and be called `main.py`. When the board powers up, it always looks for a file called `main.py` and runs it.
@@ -185,11 +187,11 @@ Open [example/main.py](example/main.py) and scroll through it. Every line has a 
 
 | Lines | Part | What it does |
 | --- | --- | --- |
-| [11–27](example/main.py#L11-L27) | **Libraries** | Prewritten code for generic function: the display driver, the PNG decoder and the font renderer. |
-| [31–83](example/main.py#L31-L83) | **Settings** | The main things you are changing today: the message, the colours, brightness, sizes, speeds and file names. |
-| [87–118](example/main.py#L87-L118) | **Functions** | Two named helpers: one makes a dimmed pen for the text, the other dims the whole background. |
-| [122–197](example/main.py#L122-L197) | **Setup** | Runs once at the start: switches on the panel, loads the font and finds all the frames. |
-| [201–259](example/main.py#L201-L259) | **Main loop** | Runs forever, once per frame: draws the background, draws the text, shows it on the LEDs, waits a moment, repeats. |
+| [9–25](example/main.py#L9-L25) | **Libraries** | Prewritten code for generic function: the display driver, the PNG decoder and the font renderer. |
+| [29–84](example/main.py#L29-L84) | **Settings** | The main things you are changing today: the message, the colours, brightness, sizes, speeds and file names. |
+| [88–119](example/main.py#L88-L119) | **Functions** | Two named helpers: one makes a dimmed pen for the text, the other dims the whole background. |
+| [123–213](example/main.py#L123-L213) | **Setup** | Runs once at the start: switches on the panel, loads the font and finds all the frames. |
+| [217–287](example/main.py#L217-L287) | **Main loop** | Runs forever, once per frame: draws the background, draws the text, shows it on the LEDs, waits a moment, repeats. |
 
 The main loop is the heart of it. Every single frame, the board does this:
 
@@ -204,14 +206,14 @@ flowchart TD
     G --> A
 ```
 
-Notice that nothing appears on the panel until [line 256](example/main.py#L256) (`i75.update()`). Until then the board is drawing onto an invisible canvas in memory. Only once the whole frame is ready do we send it to the LEDs in one go, so you never see half-drawn frames.
+Notice that nothing appears on the panel until [line 266](example/main.py#L266) (`i75.update()`). Until then the board is drawing onto an invisible canvas in memory. Only once the whole frame is ready do we send it to the LEDs in one go, so you never see half-drawn frames.
 
 #### Your first change
 
 Let's make a change to prove it's really yours.
 
-1. Find the `SCROLL_SPEED` setting on [line 65](example/main.py#L65). Change the `1` to `3`.
-2. Find `TEXT_COLOUR` on [line 59](example/main.py#L59). The three numbers are **red, green, blue**, each from `0` (off) to `255` (full brightness). Try `(0, 255, 0)` for green.
+1. Find the `SCROLL_SPEED` setting on [line 63](example/main.py#L63). Change the `1` to `3`.
+2. Find `TEXT_COLOUR` on [line 57](example/main.py#L57). The three numbers are **red, green, blue**, each from `0` (off) to `255` (full brightness). Try `(0, 255, 0)` for green.
 3. Save (<kbd>Cmd</kbd> + <kbd>S</kbd>) and Run (<kbd>F5</kbd>).
 
 Fast green text! Change them back (if you want, it's your sign) and let's move on.
@@ -222,13 +224,13 @@ When something goes wrong, the Shell at the bottom of Thonny shows an error in r
 
 | You see | What it means | Fix |
 | --- | --- | --- |
-| `OSError: [Errno 2] ENOENT` | The board can't find a file. | Check the `fonts` / `gif` folders are on the board (bottom half of the Files panel), and that `FONT_FILE` ([line 47](example/main.py#L47)) and `GIF_FOLDER` ([line 38](example/main.py#L38)) exactly match the names on the board. Capital letters matter! |
+| `OSError: [Errno 2] ENOENT` | The board can't find a file. | Check the `fonts` / `gif` folders are on the board (bottom half of the Files panel), and that `FONT_FILE` ([line 45](example/main.py#L45)), `SECOND_FONT_FILE` ([line 72](example/main.py#L72)) and `GIF_FOLDER` ([line 36](example/main.py#L36)) exactly match the names on the board. Capital letters matter! |
 | `ZeroDivisionError` or `IndexError` | The GIF folder is there but has no PNG files in it. | Re-upload your frames. |
 | `SyntaxError` | A typo in the code. | Look at the line number in the error. Common culprits: a missing quote mark `"`, or a missing bracket `)`. |
 | `ImportError: no module named 'interstate75'` | Thonny is connected to the wrong thing, or the board's firmware is missing. | Check the bottom-right corner of Thonny says MicroPython. If it does, ask for help. |
 | `Device is busy` / nothing happens | The board is still running the old code. | Click **Stop** and try again. If that doesn't work, unplug and replug the USB cable. |
 | Colours look wrong (red is blue, etc.) | Some panels wire their colours in a different order. | Ask for help. There's a `color_order` setting for this ([docs](https://github.com/pimoroni/interstate75/blob/main/docs/README.md#colour-order)). |
-| The sign is blank but there are no errors | The text or frames might be drawing off-screen. | Check `TEXT_Y` ([line 56](example/main.py#L56)) is between 0 and 64. |
+| The sign is blank but there are no errors | The text or frames might be drawing off-screen. | Check `TEXT_Y` ([line 54](example/main.py#L54)) is between 0 and 64. |
 
 ---
 
@@ -262,9 +264,28 @@ We are about to squash a GIF down to 64x64 pixels (or 128x64). Most of the detai
 
 Good places to look: [GIPHY](https://giphy.com/), [1jps.tumblr.com](https://1jps.tumblr.com/), or make your own.
 
-**Download your GIF to your Downloads folder.** Give it a simple name with no spaces, like `fire.gif`.
-
 > **[FIGURE 2.1 — placeholder]** A few example GIFs shown at original size and at 64x64: some that work well (fire, pixel art) and some that don't (a crowd scene, a GIF with text).
+
+#### Making your own
+
+Instead of shrinking someone else's animation, you can draw your own, pixel by pixel, at exactly the size of your panel. Nothing gets lost in the squash, because there is no squash: every pixel you draw is one LED on your sign. These are all free:
+
+- **[Piskel](https://www.piskelapp.com/)** runs in your web browser, so there's nothing to install. It's the quickest way to start: draw a frame, add another, and it plays them back as you go. When you're done, **Export → GIF**.
+- **[Pixelorama](https://orama-interactive.itch.io/pixelorama)** is a more powerful, open-source editor you download (there's a Mac version). It has a proper animation timeline with onion skinning (seeing faint copies of the frames before and after the one you're drawing). **File → Export** as a GIF.
+- **[voidsprite](https://cntrpl.itch.io/voidsprite)** is a fast, open-source pixel art editor. It doesn't export GIFs, so save each frame as its own PNG, numbered in order (`frame_000.png`, `frame_001.png`, ...), into a new folder called `my-gif` inside the `example` folder. Then skip straight to [Step 5](#step-5-upload-the-frames-to-the-board).
+
+Some tips:
+
+- **Set the canvas to your panel's size before you start:** 64x64, or 128x64. Then your art needs no resizing at all.
+- **Draw on black.** Black is "LED off", so anything you leave black won't glow, and your text will stand out against it.
+- **Keep it short and loopable.** 8 to 16 frames of something simple (a flicker, a pulse, a drifting shape) often looks better than 100 frames of something complicated.
+- **Leave room for the text.** Keep the busiest parts of the animation away from the middle, where your text scrolls past.
+
+If your GIF is already 64x64, the conversion in [Step 3](#step-3-convert-the-gif) still works; it just won't need to shrink anything. Try `flags=neighbor` to keep every pixel perfectly sharp.
+
+> **[FIGURE 2.2 — placeholder]** Screenshot of Piskel with a 64x64 canvas, a few animation frames in the frame list on the left, and the Export → GIF option highlighted.
+
+**Download (or export) your GIF to your Downloads folder.** Give it a simple name with no spaces, like `fire.gif`.
 
 #### Meet ffmpeg
 
@@ -278,7 +299,7 @@ Good places to look: [GIPHY](https://giphy.com/), [1jps.tumblr.com](https://1jps
 
 `cd` means "change directory". It tells the Terminal which folder to work in.
 
-> **[FIGURE 2.2 — placeholder]** Screenshot/GIF of dragging the `example` folder from Finder into the Terminal after typing `cd `.
+> **[FIGURE 2.3 — placeholder]** Screenshot/GIF of dragging the `example` folder from Finder into the Terminal after typing `cd `.
 
 #### Step 2: Make a folder for your frames
 
@@ -337,12 +358,12 @@ ffmpeg -t 4 -i ~/Downloads/fire.gif -vf "fps=10,scale=64:64:force_original_aspec
 
 #### Step 6: Tell the code to use your frames
 
-1. In `main.py`, change `GIF_FOLDER` on [line 38](example/main.py#L38) from `"gif"` to `"my-gif"`.
+1. In `main.py`, change `GIF_FOLDER` on [line 36](example/main.py#L36) from `"gif"` to `"my-gif"`.
 2. Save and Run.
 
-If the animation is playing too fast or too slow, change `FRAME_DELAY` on [line 41](example/main.py#L41). It's the number of seconds to wait between each frame. Heads up: this also changes the speed of the scrolling text, since the text moves once per frame. You may need to adjust `SCROLL_SPEED` ([line 65](example/main.py#L65)) to match.
+If the animation is playing too fast or too slow, change `FRAME_DELAY` on [line 39](example/main.py#L39). It's the number of seconds to wait between each frame, *on top of* the time it takes to draw the frame, so the FPS in the Shell will always be a bit lower than `1 / FRAME_DELAY`. Heads up: this also changes the speed of the scrolling text, since the text moves once per frame. You may need to adjust `SCROLL_SPEED` ([line 63](example/main.py#L63)) to match.
 
-If your text gets lost in the animation, turn the background down with `BACKGROUND_BRIGHTNESS` on [line 44](example/main.py#L44). `1` is full brightness, `0.5` (the default) is half, and `0` is off. LEDs are *very* bright, so a dimmer background often looks richer, not just darker.
+If your text gets lost in the animation, turn the background down with `BACKGROUND_BRIGHTNESS` on [line 42](example/main.py#L42). `1` is full brightness, `0.5` (the default) is half, and `0` is off. LEDs are *very* bright, so a dimmer background often looks richer, not just darker.
 
 #### Play with it!
 
@@ -353,15 +374,15 @@ You don't have to stick with the command as it is. Delete your frames (`rm my-gi
 - **Black and white:** add `hue=s=0,` in the same place.
 - **Slow motion:** lower the `fps`, then make `FRAME_DELAY` bigger.
 
-> **[FIGURE 2.3 — placeholder]** The same GIF converted with `flags=area` vs `flags=neighbor`, and with `eq=contrast=1.4:saturation=2`.
+> **[FIGURE 2.4 — placeholder]** The same GIF converted with `flags=area` vs `flags=neighbor`, and with `eq=contrast=1.4:saturation=2`.
 
 ### Option B: Generate the background with code
 
 Instead of playing back frames someone else made, we can have the board *work out* every pixel of the background itself, fresh every frame. Nothing to download, nothing to convert, and it never repeats.
 
-The [alternative-example/main.py](alternative-example/main.py) does this using **Voronoi noise**. Imagine a handful of invisible points drifting around the screen. For every pixel, the board asks: *"which point am I closest to?"* and takes that point's colour. The closer the pixel is to its point, the brighter it glows. The result is a set of glowing cells that stretch and squash into each other as the points drift. You'll find the same pattern in nature: giraffe skin, dried mud, soap bubbles, the cells in a leaf.
+The [alternative-example/main.py](alternative-example/main.py) does this using **Voronoi noise**. Imagine a handful of invisible points drifting around the screen. For every pixel, the board asks: *"which point am I closest to?"* and takes that point's colour. The closer the pixel is to its point, the brighter it glows. The result is a set of glowing cells that stretch and squash into each other as the points drift. You'll find the same pattern in nature: skin, dried mud, soap bubbles, the cells in a leaf.
 
-> **[FIGURE 2.4 — placeholder]** Diagram of a Voronoi pattern: a few dots, each with the region of the screen closest to it shaded in its own colour.
+> **[FIGURE 2.5 — placeholder]** Diagram of a Voronoi pattern: a few dots, each with the region of the screen closest to it shaded in its own colour.
 
 #### Run it
 
@@ -375,24 +396,26 @@ The alternative example uses the same font as the main example, which is already
 
 | Setting | Line | What it does | Try |
 | --- | --- | --- | --- |
-| `NUM_POINTS` | [39](alternative-example/main.py#L39) | How many cells there are. | `3` for big blobs, `20` for a mosaic. |
-| `POINT_SPEED` | [45](alternative-example/main.py#L45) | How fast the cells drift. | `0.1` for calm, `3` for chaos. |
-| `GLOW` | [48](alternative-example/main.py#L48) | How far the light spreads from each point. | `10` for dark gaps between cells, `80` for no gaps. |
-| `HUE_MIN` / `HUE_MAX` | [52](alternative-example/main.py#L52) / [55](alternative-example/main.py#L55) | The range of colours used, as a position on the colour wheel from 0 to 1. The comment above explains which number is which colour. | `0` / `0.15` for fire, `0.3` / `0.5` for sea. |
-| `COLOUR_DRIFT` | [58](alternative-example/main.py#L58) | How quickly the colours cycle around the colour wheel. | `0` to freeze the colours, `0.02` for disco. |
-| `BACKGROUND_BRIGHTNESS` | [61](alternative-example/main.py#L61) | How bright the whole background is, from `0` (off) to `1` (full). | `0.2` for a subtle glow behind the text, `1` for full blast. |
-| `BLOCK_SIZE` | [42](alternative-example/main.py#L42) | How big each chunky "block" is, in pixels. | See below! |
+| `NUM_POINTS` | [40](alternative-example/main.py#L40) | How many cells there are. | `3` for big blobs, `20` for a mosaic. |
+| `POINT_SPEED` | [46](alternative-example/main.py#L46) | How fast the cells drift. | `0.1` for calm, `3` for chaos. |
+| `GLOW` | [49](alternative-example/main.py#L49) | How far the light spreads from each point. | `10` for dark gaps between cells, `80` for no gaps. |
+| `HUE_MIN` / `HUE_MAX` | [53](alternative-example/main.py#L53) / [56](alternative-example/main.py#L56) | The range of colours used, as a position on the colour wheel from 0 to 1. The comment above explains which number is which colour. | `0` / `0.15` for fire, `0.3` / `0.5` for sea. |
+| `COLOUR_DRIFT` | [59](alternative-example/main.py#L59) | How quickly the colours cycle around the colour wheel. | `0` to freeze the colours, `0.02` for disco. |
+| `BACKGROUND_BRIGHTNESS` | [62](alternative-example/main.py#L62) | How bright the whole background is, from `0` (off) to `1` (full). | `0.2` for a subtle glow behind the text, `1` for full blast. |
+| `BLOCK_SIZE` | [43](alternative-example/main.py#L43) | How big each chunky "block" is, in pixels. | See below! |
 
-The text settings ([lines 72–93](alternative-example/main.py#L72-L93)) work exactly the same as in the main example.
+The text settings ([lines 73–112](alternative-example/main.py#L73-L112)) work exactly the same as in the main example, including the optional second line in its own font (`SHOW_SECOND_LINE` on [line 94](alternative-example/main.py#L94)). The text here is white (`TEXT_COLOUR` on [line 85](alternative-example/main.py#L85)), because pink text gets lost against the colourful cells.
 
 #### Feeling the limits
 
-This is where low-resource hardware really shows itself. Look at the `draw_voronoi` function ([lines 179–234](alternative-example/main.py#L179-L234)). For *every block* on the screen, it checks the distance to *every point* ([lines 198–216](alternative-example/main.py#L198-L216)). On a 64x64 panel with `BLOCK_SIZE = 2` that's 32x32 = 1,024 blocks, times 8 points, which comes to **8,192 distance calculations every single frame**.
+This is where low-resource hardware really shows itself. Look at the `draw_voronoi` function ([lines 228–283](alternative-example/main.py#L228-L283)). For *every block* on the screen, it checks the distance to *every point* ([lines 247–265](alternative-example/main.py#L247-L265)). On a 64x64 panel with `BLOCK_SIZE = 2` that's 32x32 = 1,024 blocks, times 8 points, which comes to **8,192 distance calculations every single frame**.
 
-- Change `BLOCK_SIZE` to `1` (full detail). That's now 32,768 calculations per frame. Watch it slow down.
+Keep an eye on the `FPS:` number in the Shell ([line 368](alternative-example/main.py#L368)) as you try these:
+
+- Change `BLOCK_SIZE` to `1` (full detail). That's now 32,768 calculations per frame. Watch the FPS drop.
 - Change it to `4`. Chunkier, but *much* faster.
 - Crank `NUM_POINTS` up to `30` and see what happens.
-- On [line 180](alternative-example/main.py#L180) there's `@micropython.native`. This asks MicroPython to convert the function into faster machine code. Put a `#` at the start of that line to switch it off, and see how much slower it gets.
+- On [line 229](alternative-example/main.py#L229) there's `@micropython.native`. This asks MicroPython to convert the function into faster machine code. Put a `#` at the start of that line to switch it off, and see how far the FPS falls.
 
 A GPU in a media server would do all of this for millions of pixels without breaking a sweat. We have two little cores at 150 MHz. Finding the balance between how it *looks* and how *fast* it runs is the constraint we're working within, and it's a creative decision.
 
@@ -449,7 +472,7 @@ Desktop fonts are made of curves, hinting instructions and kerning tables: far t
 ### Step 3: Use it
 
 1. In Thonny, **Refresh** the top half of the Files panel, then **right-click `fonts` → Upload to /**. Say yes if it asks to overwrite.
-2. In `main.py`, change `FONT_FILE` on [line 47](example/main.py#L47) to `"fonts/myfont.af"`.
+2. In `main.py`, change `FONT_FILE` on [line 45](example/main.py#L45) to `"fonts/myfont.af"`.
 3. Save and Run.
 
 ### Step 4: Dial it in
@@ -460,13 +483,13 @@ Every font sits a little differently, so now you need to dial in the size and po
 
 | Setting | Line | What it does |
 | --- | --- | --- |
-| `TEXT_SIZE` | [53](example/main.py#L53) | How tall the text is, in pixels. Our panel is only 64 tall! |
-| `TEXT_Y` | [56](example/main.py#L56) | How far down from the top the text sits. `0` is the very top. |
-| `TEXT_COLOUR` | [59](example/main.py#L59) | The colour as (red, green, blue), each from `0` to `255`. |
-| `TEXT_BRIGHTNESS` | [62](example/main.py#L62) | How bright the text is, from `0` (off) to `1` (full). Affects both lines of text. |
-| `BACKGROUND_BRIGHTNESS` | [44](example/main.py#L44) | How bright the background is, from `0` (off) to `1` (full). |
-| `SCROLL_SPEED` | [65](example/main.py#L65) | How many pixels it moves each frame. |
-| `ANTIALIASING` | [83](example/main.py#L83) | How smooth the edges of the letters are: `ANTIALIAS_NONE` (sharp and crunchy, fastest), `ANTIALIAS_FAST`, or `ANTIALIAS_BEST` (smoothest, slowest). |
+| `TEXT_SIZE` | [51](example/main.py#L51) | How tall the text is, in pixels. Our panel is only 64 tall! |
+| `TEXT_Y` | [54](example/main.py#L54) | How far down from the top the text sits. `0` is the very top. |
+| `TEXT_COLOUR` | [57](example/main.py#L57) | The colour as (red, green, blue), each from `0` to `255`. |
+| `TEXT_BRIGHTNESS` | [60](example/main.py#L60) | How bright the text is, from `0` (off) to `1` (full). Affects both lines of text. |
+| `BACKGROUND_BRIGHTNESS` | [42](example/main.py#L42) | How bright the background is, from `0` (off) to `1` (full). |
+| `SCROLL_SPEED` | [63](example/main.py#L63) | How many pixels it moves each frame. |
+| `ANTIALIASING` | [84](example/main.py#L84) | How smooth the edges of the letters are: `ANTIALIAS_NONE` (sharp and crunchy, fastest), `ANTIALIAS_FAST`, or `ANTIALIAS_BEST` (smoothest, slowest). |
 
 Change one thing at a time, then Save and Run. Some things to think about as you go:
 
@@ -479,7 +502,7 @@ Change one thing at a time, then Save and Run. Some things to think about as you
 
 ### Step 5: Change what it says
 
-Now make it say what *you* want. Change `MESSAGE` on [line 50](example/main.py#L50).
+Now make it say what *you* want. Change `MESSAGE` on [line 48](example/main.py#L48).
 
 - Keep your words **inside the quote marks** `"like this"`. If the line turns a strange colour in Thonny, you've probably lost a quote mark.
 - Apostrophes are fine: `"Don't panic"`.
@@ -490,14 +513,31 @@ Now make it say what *you* want. Change `MESSAGE` on [line 50](example/main.py#L
 
 One line is good, but you could have another line of text. The code for this is already in `main.py`, just switched off.
 
-1. Change `SHOW_SECOND_LINE` on [line 68](example/main.py#L68) from `False` to `True`. (Capital T!)
-2. Save and Run. You'll see "DUNE" in small white text, centred near the bottom.
-3. Now make it yours using its own settings on [lines 71–80](example/main.py#L71-L80): `SECOND_MESSAGE`, `SECOND_TEXT_SIZE`, `SECOND_TEXT_Y` and `SECOND_TEXT_COLOUR`.
+1. Change `SHOW_SECOND_LINE` on [line 66](example/main.py#L66) from `False` to `True`. (Capital T!)
+2. Save and Run. You'll see "DUNE" in small white text, centred near the bottom, in a *different font*: Silkscreen, a pixel font.
+3. Now make it yours using its own settings on [lines 69–81](example/main.py#L69-L81): `SECOND_MESSAGE`, `SECOND_FONT_FILE`, `SECOND_TEXT_SIZE`, `SECOND_TEXT_Y` and `SECOND_TEXT_COLOUR`.
 4. You'll probably need to adjust `TEXT_SIZE` and `TEXT_Y` for the first line too, so the two lines don't overlap.
 
-How does it work? During setup ([lines 182–194](example/main.py#L182-L194)) the code measures the second line and works out where it needs to go to sit in the middle. Then, every frame, the main loop draws it ([lines 244–253](example/main.py#L244-L253)), right after the first line. The second line **doesn't scroll**, so keep it short. At size 12 only about 5 or 6 letters will fit across a 64-pixel panel.
+How does it work? During setup ([lines 183–204](example/main.py#L183-L204)) the code creates a *second* PicoVector renderer, loads the second font into it, then measures the second line and works out where it needs to go to sit in the middle. Each renderer holds one font, so having two means the board doesn't have to reload a font every frame. Then, every frame, the main loop draws the second line ([lines 257–263](example/main.py#L257-L263)), right after the first. The second line **doesn't scroll**, so keep it short. At size 12 only about 5 or 6 letters will fit across a 64-pixel panel.
 
-**Challenge:** make the second line scroll too. Look at how the first line does it: it starts at `text_x = WIDTH` ([line 179](example/main.py#L179)), moves left each frame ([line 235](example/main.py#L235)) and jumps back to the right when it's gone ([lines 238–241](example/main.py#L238-L241)). Could you make the second line scroll the *other* way?
+#### Choosing a second font
+
+The first line is big and shouts; the second line is small and should *whisper*. Two different fonts make the difference clear, but at this size legibility is everything.
+
+- **Small text needs a simple font.** At 12 pixels tall, most detailed fonts turn to mush. That's why the example uses [Silkscreen](https://fonts.google.com/specimen/Silkscreen), a pixel font designed to be crisp at tiny sizes.
+- **Contrast, don't clash.** Pair a chunky, curvy main font with a simple, square second font (or the other way around). Two very different fancy fonts will fight each other.
+- **Pixel fonts** (Silkscreen, Press Start 2P, VT323) look sharpest if you also try `ANTIALIAS_NONE` ([line 84](example/main.py#L84)). Press Start 2P is very wide, so only about 4 letters fit at size 12.
+
+To use your own second font:
+
+1. Download it and convert it with `afinate`, exactly like [Step 2](#step-2-convert-it-with-afinate), but give it a different name at the end, e.g. `fonts/mysecondfont.af`.
+2. In Thonny, **Refresh**, then **right-click `fonts` → Upload to /**.
+3. Change `SECOND_FONT_FILE` on [line 72](example/main.py#L72) to `"fonts/mysecondfont.af"`.
+4. Save and Run, then dial in `SECOND_TEXT_SIZE` and `SECOND_TEXT_Y` again. Every font sits a little differently.
+
+> **[FIGURE 3.4 — placeholder]** Photo of the sign with both lines showing: the main font scrolling across the top and the second font underneath.
+
+**Challenge:** make the second line scroll too. Look at how the first line does it: it starts at `text_x = WIDTH` ([line 180](example/main.py#L180)), moves left each frame ([line 248](example/main.py#L248)) and jumps back to the right when it's gone ([lines 251–254](example/main.py#L251-L254)). Could you make the second line scroll the *other* way?
 
 ---
 

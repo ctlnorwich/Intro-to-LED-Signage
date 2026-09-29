@@ -31,6 +31,7 @@ Also install [Thonny](https://thonny.org/) (e.g. `brew install --cask thonny`).
 The example expects:
 
 - the background frames as PNGs in [example/gif](../example/gif), at the panel's resolution (64x64 by default), named so they sort in order (e.g. `frame_000.png`, `frame_001.png`, ...). The ffmpeg command in [Section 2, Step 3](../README.md#step-3-convert-the-gif) produces exactly this.
-- the font as `sign.af` in [example/fonts](../example/fonts), made with `afinate` as in [Section 3, Step 2](../README.md#step-2-convert-it-with-afinate). If you use a different name, update `FONT_FILE` on [line 47 of example/main.py](../example/main.py#L47) and [line 72 of alternative-example/main.py](../alternative-example/main.py#L72).
+- the main font as `cherry-hq.af` in [example/fonts](../example/fonts), made with `afinate` as in [Section 3, Step 2](../README.md#step-2-convert-it-with-afinate). If you use a different name, update `FONT_FILE` on [line 45 of example/main.py](../example/main.py#L45) and [line 73 of alternative-example/main.py](../alternative-example/main.py#L73).
+- the second-line font as `silkscreen.af` in the same folder: [Silkscreen](https://fonts.google.com/specimen/Silkscreen), converted with `afinate --quality medium`. Its licence is alongside it in `silkscreen-OFL.txt` (SIL Open Font License), and must stay with the font. If you swap it, update `SECOND_FONT_FILE` on [line 72 of example/main.py](../example/main.py#L72).
 
-For 128x64 panels, change `PANEL` on [line 35 of example/main.py](../example/main.py#L35) and [line 36 of alternative-example/main.py](../alternative-example/main.py#L36) to `DISPLAY_INTERSTATE75_128X64`, and supply 128x64 frames.
+For 128x64 panels, change `PANEL` on [line 33 of example/main.py](../example/main.py#L33) and [line 37 of alternative-example/main.py](../alternative-example/main.py#L37) to `DISPLAY_INTERSTATE75_128X64`, and supply 128x64 frames.

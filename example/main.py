@@ -68,6 +68,9 @@ SHOW_SECOND_LINE = False
 # The words for the second line. This line does not scroll, so keep it short!
 SECOND_MESSAGE = "DUNE"
 
+# The Alright Font (.af) file for the second line. A different font adds contrast!
+SECOND_FONT_FILE = "fonts/silkscreen.af"
+
 # The height of the second line of text in pixels.
 SECOND_TEXT_SIZE = 12
 
@@ -182,17 +185,32 @@ if SHOW_SECOND_LINE:
     # Turn the second line's colour and the text brightness into a pen.
     SECOND_PEN = dimmed_pen(SECOND_TEXT_COLOUR, TEXT_BRIGHTNESS)
 
-    # Switch the font to the second line's size, so we can measure it.
-    vector.set_font_size(SECOND_TEXT_SIZE)
+    # Create a second PicoVector renderer. Each one holds its own font.
+    second_vector = PicoVector(display)
+
+    # Starting a new renderer resets the smoothness, so set it again.
+    second_vector.set_antialiasing(ANTIALIASING)
+
+    # Starting a new renderer also resets the transform, so set it again too.
+    second_vector.set_transform(transform)
+
+    # Load the second line's font file from the board, at the second line's size.
+    second_vector.set_font(SECOND_FONT_FILE, SECOND_TEXT_SIZE)
 
     # Measure the second line: its width, and where its top edge is.
-    _, second_top, second_width, _ = vector.measure_text(SECOND_MESSAGE)
+    _, second_top, second_width, _ = second_vector.measure_text(SECOND_MESSAGE)
 
     # Work out the x position that puts the second line in the middle.
     second_x = int((WIDTH - second_width) / 2)
 
 # Start the animation on the first frame. Computers count from 0!
 frame_number = 0
+
+# Remember when we started counting frames, in milliseconds.
+fps_start = time.ticks_ms()
+
+# Count how many frames we've drawn since then.
+fps_frames = 0
 
 
 # ---------------------------------------------------------------------------
@@ -220,9 +238,6 @@ while True:
     # Move to the next frame. The % wraps back to 0 after the last one.
     frame_number = (frame_number + 1) % len(frames)
 
-    # Make sure the font is at the main message's size.
-    vector.set_font_size(TEXT_SIZE)
-
     # Pick up the pink pen.
     display.set_pen(TEXT_PEN)
 
@@ -241,17 +256,32 @@ while True:
     # Only draw the second line if it is switched on.
     if SHOW_SECOND_LINE:
 
-        # Switch the font to the second line's size.
-        vector.set_font_size(SECOND_TEXT_SIZE)
-
         # Pick up the second line's pen.
         display.set_pen(SECOND_PEN)
 
-        # Draw the second line, centred, at its height on the screen.
-        vector.text(SECOND_MESSAGE, second_x, int(SECOND_TEXT_Y - second_top))
+        # Draw the second line in its own font, centred, at its height on the screen.
+        second_vector.text(SECOND_MESSAGE, second_x, int(SECOND_TEXT_Y - second_top))
 
     # Send the canvas to the LED panel. Nothing shows until we do this!
     i75.update()
 
     # Wait a moment before drawing the next frame.
     time.sleep(FRAME_DELAY)
+
+    # Count this frame.
+    fps_frames += 1
+
+    # Work out how many milliseconds have passed since we started counting.
+    fps_elapsed = time.ticks_diff(time.ticks_ms(), fps_start)
+
+    # Once a whole second (1000 milliseconds) has passed...
+    if fps_elapsed >= 1000:
+
+        # ...print the frames per second to the Shell in Thonny.
+        print("FPS:", round(fps_frames * 1000 / fps_elapsed, 1))
+
+        # Start counting again from now.
+        fps_start = time.ticks_ms()
+
+        # Reset the frame count.
+        fps_frames = 0
