@@ -79,7 +79,7 @@ MESSAGE = "I must not fear. Fear is the mind-killer. Fear is the little-death th
 TEXT_SIZE = 24
 
 # How far down from the top of the screen the text sits, in pixels (0 = top).
-TEXT_Y = 20
+TEXT_Y = 30
 
 # The text colour as (red, green, blue). Each goes from 0 (off) to 255 (full). This is white.
 TEXT_COLOUR = (255, 255, 255)
