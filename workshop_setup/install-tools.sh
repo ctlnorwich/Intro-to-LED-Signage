@@ -20,7 +20,7 @@ AF_BRANCH="feature/port-to-c17"
 as_needed() {
   local target="$1"; shift
   while [[ ! -e "$target" ]]; do target="$(dirname "$target")"; done
-  if [[ -w "$target" ]]; then "$@"; else sudo "$@"; fi
+  if [[ -w "$target" ]]; then "$@"; else sudo -H "$@"; fi
 }
 
 if [[ "$(uname)" != "Darwin" ]]; then
@@ -46,10 +46,9 @@ if [[ "$BREW_BIN" != "$BIN_DIR" ]]; then
 fi
 
 echo "==> python3"
-if ! command -v python3 >/dev/null 2>&1; then
-  brew install python
-fi
-PYTHON="$(command -v python3)"
+# Apple's /usr/bin/python3 (3.9) has no prebuilt wheels for simplification, so use Homebrew's.
+brew list python@3.12 >/dev/null 2>&1 || brew install python@3.12
+PYTHON="$(brew --prefix python@3.12)/bin/python3.12"
 
 echo "==> alright-fonts ($AF_BRANCH) -> $AF_DIR"
 if [[ -d "$AF_DIR/.git" ]]; then
@@ -60,8 +59,9 @@ else
 fi
 
 echo "==> afinate dependencies"
-as_needed "$AF_DIR" "$PYTHON" -m venv "$AF_DIR/.venv"
-as_needed "$AF_DIR" "$AF_DIR/.venv/bin/pip" install --quiet --upgrade pip freetype-py simplification
+as_needed "$AF_DIR" "$PYTHON" -m venv --clear "$AF_DIR/.venv"
+as_needed "$AF_DIR" "$AF_DIR/.venv/bin/python" -m pip install --quiet --upgrade pip
+as_needed "$AF_DIR" "$AF_DIR/.venv/bin/python" -m pip install --quiet --only-binary :all: freetype-py simplification
 
 echo "==> afinate command -> $BIN_DIR/afinate"
 WRAPPER="$(mktemp)"
